@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title></title>
+
+		<style type="text/css">
+#containerStock {
+	width: 100%;
+	height: 250px;
+	margin: 0 auto:
+	<!--overflow-x: scroll;-->
+}
+		</style>
+	</head>
+	<body>
+<script src="LineChartJS/highstock.js"></script>
+<script src="LineChartJS/JSBridge.js"></script>
+<div style="margin-left: 10px;margin-bottom: 10px;font-size: 12px;">单位：元/个</div>
+<div id="containerStock">折线图加载中...</div>
+		<script type="text/javascript">
+
+			<!--折线图数据-->
+			var priceStockData=[0,0,0];
+			var numStockData=[0,0,0];
+			var fairStockData=[0,0,0];
+			var timeStockData=["00-00","00-00","00-00"];
+			var maxLength=5;
+			var flag = false; // 设置一个滚动条的开关,默认情况下关闭
+			window.onload=function(){
+			<!--msg；传递给java层的值-->
+			<!--function；回调方法-->
+				jsCallAndroid('JSBridge','ShowToast',{'msg':'0'},function(res){
+				<!--Js调用Android-->
+				 	 	 priceStockData=res.priceArray;
+		       		     numStockData=res.numArray;
+		       		     fairStockData=res.fairArray;
+		       		     timeStockData=res.timeArray;
+		       		     <!--防止数据少时，x轴显示异常。可注释掉查看效果-->
+		       		     if (priceStockData.length < maxLength ) {
+   							 maxLength = priceStockData.length-1;
+						}
+						if (maxLength >= 5) {
+   						 flag = true;
+						}
+
+<!--折线图-->
+Highcharts.chart('containerStock', {
+    title: {
+        text: ''
+    },
+
+    subtitle: {
+        text: ''
+    },
+    <!--x轴-->
+ xAxis : {
+    	     categories:timeStockData,
+    	     min:0,
+    	     max:maxLength
+	},
+		scrollbar:{
+		enabled:flag
+	},
+    yAxis: {
+        title: {
+            text: ''
+        }
+    },
+    legend: {
+        layout: 'horizontal',
+        align: 'left',
+        verticalAlign: 'bottom'
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+        }
+    },
+
+    series: [{
+        name: '价格',
+        data: priceStockData,
+        <!--color:Highcharts.getOptions().colors[2]-->
+    }, {
+        name: '数量',
+        data: numStockData
+    }, {
+        name: '参考价',
+        data: fairStockData
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                <!--maxWidth: 500-->
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+});
+	})
+<!--window.onload的结束标签-->
+	}
+		</script>
+	</body>
+</html>
